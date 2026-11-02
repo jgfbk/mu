@@ -52,16 +52,11 @@
     .quote-box { background-color: #f5f5f5; padding: 6px 10px; border-radius: 4px; font-size: 12px; color: #888; margin-bottom: 6px; border-left: 2px solid #ccc; }
     .quote-preview { display: none; background: #f5f5f5; padding: 8px 10px; margin: 10px 12px 0 12px; border-radius: 4px; font-size: 13px; color: #555; border-left: 3px solid #333; position: relative; }
     .quote-preview.active { display: block; }
-    .quote-preview .close-quote { position: absolute; right: 5px; top: 5px; color: #999; font-size: 16px; font-weight: bold; }/* 输入栏改造 */
-.input-row { display: flex; align-items: flex-end; padding: 10px 12px; }
+    .quote-preview .close-quote { position: absolute; right: 5px; top: 5px; color: #999; font-size: 16px; font-weight: bold; }.input-row { display: flex; align-items: flex-end; padding: 10px 12px; }
 .tool-btn { width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #555; margin-right: 10px; margin-bottom: 3px; }
 .input-box { flex: 1; background: #f5f5f5; border-radius: 6px; padding: 10px 12px; font-size: 16px; resize: none; max-height: 100px; line-height: 1.4; margin-right: 10px; overflow-y: hidden; }
-
-/* 图3：三个点按钮（主动让TA说话） */
 .action-btn { width: 40px; height: 40px; border-radius: 50%; background: #f5f5f5; display: flex; align-items: center; justify-content: center; margin-right: 8px; flex-shrink: 0; border: none; }
 .action-btn svg { fill: #333; }
-
-/* 图4：纸飞机发送按钮 */
 .send-btn { width: 40px; height: 40px; border-radius: 50%; background: #333; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: none; padding: 0; }
 .send-btn:disabled { background-color: #ccc; }
 .send-btn svg { fill: #fff; width: 20px; height: 20px; margin-left: -2px; margin-top: 2px; }
@@ -103,7 +98,6 @@
 .btn-primary { width: 100%; background: #333; color: #fff; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: bold; margin-top: 10px; }
 .btn-primary:active { opacity: 0.8; }
 
-/* 通话界面 CSS */
 .call-window { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 480px; background-color: #1c1d22; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 2000; display: none; flex-direction: column; overflow: hidden; color: #fff; touch-action: none; background-size: cover; background-position: center; }
 .call-window.active { display: flex; }
 .call-header { height: 50px; background: transparent; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; cursor: move; position: absolute; top: 0; left: 0; right: 0; z-index: 10; }
@@ -222,12 +216,10 @@
             </button>
             <textarea class="input-box" id="messageInput" rows="1" placeholder="输入消息..." oninput="window.checkSendBtn(this)" onkeydown="window.handleEnter(event)"></textarea>
             
-            <!-- 图3：主动触发按钮（三个点） -->
             <button class="action-btn" onclick="window.triggerTaProactive()">
                 <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="5" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/></svg>
             </button>
             
-            <!-- 图4：纸飞机发送按钮 -->
             <button class="send-btn" id="sendBtn" disabled onclick="window.sendMessage()">
                 <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
@@ -592,18 +584,17 @@ window.sendMessage = function() {
     if (currentState.quoteMsg) { msg.quote = currentState.quoteMsg; window.cancelQuote(); }
     APP_DATA.chatHistory.push(msg); appendMsgUI(msg, APP_DATA.chatHistory.length - 1); saveData();
     var input = document.getElementById('messageInput'); input.value = ''; input.style.height = 'auto';
-    document.getElementById('sendBtn').disabled = true; scrollToBottom(); triggerTaReply();
+    document.getElementById('sendBtn').disabled = true; scrollToBottom(); triggerTaReply(msg);
 };
 function scrollToBottom() { setTimeout(function() { var c = document.getElementById('chatContainer'); if (c) c.scrollTop = c.scrollHeight; }, 50); }
 window.toggleBottomPanel = function() { var p = document.getElementById('bottomPanel'); if (p.classList.contains('active')) p.classList.remove('active'); else { p.classList.add('active'); renderEmojiPanel(); renderSavedChoices(); scrollToBottom(); } };
 window.switchPanelTab = function(tab) { document.getElementById('tabEmoji').className = 'panel-tab ' + (tab === 'emoji' ? 'active' : ''); document.getElementById('tabChoice').className = 'panel-tab ' + (tab === 'choice' ? 'active' : ''); document.getElementById('emojiContent').className = 'panel-content ' + (tab === 'emoji' ? 'active' : ''); document.getElementById('choiceContent').className = 'panel-content ' + (tab === 'choice' ? 'active' : ''); if (tab === 'choice') renderSavedChoices(); };
-window.sendEmojiMsg = function(idx) { document.getElementById('bottomPanel').classList.remove('active'); var msg = { sender: 'user', type: 'image', content: APP_DATA.imageEmojis[idx], time: Date.now() }; if (currentState.quoteMsg) { msg.quote = currentState.quoteMsg; window.cancelQuote(); } APP_DATA.chatHistory.push(msg); appendMsgUI(msg, APP_DATA.chatHistory.length - 1); saveData(); scrollToBottom(); triggerTaReply(); };
+window.sendEmojiMsg = function(idx) { document.getElementById('bottomPanel').classList.remove('active'); var msg = { sender: 'user', type: 'image', content: APP_DATA.imageEmojis[idx], time: Date.now() }; if (currentState.quoteMsg) { msg.quote = currentState.quoteMsg; window.cancelQuote(); } APP_DATA.chatHistory.push(msg); appendMsgUI(msg, APP_DATA.chatHistory.length - 1); saveData(); scrollToBottom(); triggerTaReply(msg); };
 window.closeActionMenu = function(e) { if (e.target.id === 'actionMenuOverlay') { document.getElementById('actionMenuOverlay').classList.remove('active'); currentState.actionMsgIndex = -1; } };
 window.handleQuote = function() { var idx = currentState.actionMsgIndex; if (idx === -1) return; var msg = APP_DATA.chatHistory[idx]; var sName = msg.sender === 'user' ? APP_DATA.settings.userName : APP_DATA.settings.taName; currentState.quoteMsg = { text: msg.type === 'image' ? '[图片]' : (msg.type === 'choice' ? '[问卷]' : msg.text), type: msg.type, senderName: sName }; document.getElementById('quotePreviewText').innerText = sName + '：' + currentState.quoteMsg.text; document.getElementById('quotePreview').classList.add('active'); document.getElementById('actionMenuOverlay').classList.remove('active'); };
 window.handleDeleteMsg = function() { var idx = currentState.actionMsgIndex; if (idx === -1) return; if (confirm('删除这条消息？')) { APP_DATA.chatHistory.splice(idx, 1); saveData(); renderChatHistory(); } document.getElementById('actionMenuOverlay').classList.remove('active'); };
 window.cancelQuote = function() { currentState.quoteMsg = null; document.getElementById('quotePreview').classList.remove('active'); };
 
-// 获取清洗后的字卡池
 function getValidCards() {
     var valid = [];
     for (var i = 0; i < APP_DATA.cards.length; i++) {
@@ -618,7 +609,6 @@ function getValidCards() {
     return valid;
 }
 
-// 打字延迟动画（不在此处隐藏，便于延迟累加控制）
 function showTypingAndReply(cb) {
     var tip = document.getElementById('typingIndicator');
     if (tip) {
@@ -631,17 +621,37 @@ function showTypingAndReply(cb) {
     setTimeout(function() { cb(); }, delay);
 }
 
-// 主动让TA说话按钮触发
 window.triggerTaProactive = function() {
     if (isTaReplying) return showToast('对方正在输入中...');
     resetAutoSendTimer();
-    triggerTaReply();
+    triggerTaReply(null);
 };
 
-// 核心触发函数，若在回复中则直接拦截不响应
-function triggerTaReply() {
+// 修复问卷：现在接收 userMsg 参数进行判定
+function triggerTaReply(userMsg) {
     if (isTaReplying) return;
     isTaReplying = true;
+    
+    // 如果是问卷消息，走特殊处理逻辑
+    if (userMsg && userMsg.type === 'choice') {
+        var ans = [];
+        for (var i = 0; i < userMsg.questions.length; i++) { 
+            var opts = userMsg.questions[i].options; 
+            ans.push(opts[Math.floor(Math.random() * opts.length)]); 
+        }
+        var taMsg = { sender: 'ta', type: 'text', text: '我选：' + ans.join('，'), time: Date.now() };
+        showTypingAndReply(function() { 
+            APP_DATA.chatHistory.push(taMsg); 
+            appendMsgUI(taMsg, APP_DATA.chatHistory.length - 1); 
+            saveData(); 
+            scrollToBottom(); 
+            document.getElementById('typingIndicator').classList.remove('active');
+            isTaReplying = false; 
+        });
+        return;
+    }
+    
+    // 普通消息或主动触发，走复合回复逻辑
     executeReplyLogic();
 }
 
@@ -714,7 +724,6 @@ function executeReplyLogic() {
             scrollToBottom();
             saveData();
 
-            // 递归发下一句（延迟累加）
             sendNext();
         });
     }
@@ -731,7 +740,7 @@ function resetAutoSendTimer() {
     autoSendTimer = setTimeout(function() {
         if (document.hidden) { resetAutoSendTimer(); return; }
         if (!isTaReplying) {
-            triggerTaReply(); 
+            triggerTaReply(null); 
             resetAutoSendTimer();
         } else {
             resetAutoSendTimer(); 
@@ -806,10 +815,10 @@ window.closeChoiceEditor = function() { document.getElementById('choiceEditorMod
 function renderCeUI() { document.getElementById('ceTitle').value = ceData.title; var box = document.getElementById('ceQuestions'); var html = ''; for (var i = 0; i < ceData.questions.length; i++) { var q = ceData.questions[i]; html += '<div class="form-group" style="padding:15px; margin-bottom:15px;">'; html += '<input type="text" class="form-input" placeholder="问题" value="' + q.q + '" style="text-align:left; border-bottom:1px solid #eee; padding-bottom:8px; margin-bottom:10px; font-weight:bold;" oninput="window.updCeQ(' + i + ', this.value)">'; for (var j = 0; j < q.options.length; j++) { html += '<div style="display:flex; align-items:center; margin-bottom:8px;"><span style="width:20px; color:#888;">' + String.fromCharCode(65+j) + '</span><input type="text" class="form-input" style="text-align:left; border:1px solid #f5f5f5; padding:8px; border-radius:4px;" placeholder="选项" value="' + q.options[j] + '" oninput="window.updCeOpt(' + i + ', ' + j + ', this.value)"></div>'; } html += '<button style="color:#888; font-size:13px; padding:5px 0;" onclick="window.addCeOpt(' + i + ')">+ 添加选项</button></div>'; } box.innerHTML = html; }
 window.updCeQ = function(qIdx, val) { ceData.questions[qIdx].q = val; }; window.updCeOpt = function(qIdx, oIdx, val) { ceData.questions[qIdx].options[oIdx] = val; }; window.addCeOpt = function(qIdx) { ceData.questions[qIdx].options.push(''); renderCeUI(); }; window.addCeQuestion = function() { ceData.questions.push({ q: '', options: ['', ''] }); renderCeUI(); };
 function getCleanedChoiceData() { ceData.title = document.getElementById('ceTitle').value.trim() || '问卷'; var cleanQs = []; for (var i = 0; i < ceData.questions.length; i++) { var q = ceData.questions[i]; var opts = []; for (var j = 0; j < q.options.length; j++) { if (q.options[j].trim()) opts.push(q.options[j].trim()); } if (q.q.trim() && opts.length >= 2) cleanQs.push({ q: q.q.trim(), options: opts }); } return cleanQs; }
-window.submitChoice = function() { var cleanQs = getCleanedChoiceData(); if (cleanQs.length === 0) return alert('请至少完整填写一题（需包含2个选项）'); var msg = { sender: 'user', type: 'choice', title: ceData.title, questions: cleanQs, time: Date.now() }; APP_DATA.chatHistory.push(msg); appendMsgUI(msg, APP_DATA.chatHistory.length - 1); saveData(); closeChoiceEditor(); scrollToBottom(); triggerTaReply(); };
+window.submitChoice = function() { var cleanQs = getCleanedChoiceData(); if (cleanQs.length === 0) return alert('请至少完整填写一题（需包含2个选项）'); var msg = { sender: 'user', type: 'choice', title: ceData.title, questions: cleanQs, time: Date.now() }; APP_DATA.chatHistory.push(msg); appendMsgUI(msg, APP_DATA.chatHistory.length - 1); saveData(); closeChoiceEditor(); scrollToBottom(); triggerTaReply(msg); };
 window.saveChoiceTemplate = function() { var cleanQs = getCleanedChoiceData(); if (cleanQs.length === 0) return alert('请至少完整填写一题（需包含2个选项）'); APP_DATA.savedQuestionnaires.push({ title: ceData.title, questions: cleanQs }); saveData(); alert('问卷模板已保存！'); closeChoiceEditor(); renderSavedChoices(); };
 function renderSavedChoices() { var box = document.getElementById('savedChoiceList'); if(!box) return; var html = ''; if(APP_DATA.savedQuestionnaires.length === 0) html = '<div style="text-align:center; font-size:13px; color:#999; padding:10px;">暂无保存的问卷</div>'; else { for(var i=0; i<APP_DATA.savedQuestionnaires.length; i++) { var q = APP_DATA.savedQuestionnaires[i]; html += '<div class="saved-q-item"><div class="saved-q-title">' + q.title + '</div><div class="saved-q-actions"><button class="saved-q-btn" style="color:#d4a373;" onclick="window.deleteSavedChoice(' + i + ')">删除</button><button class="saved-q-btn" style="background:#333; color:#fff; border-color:#333;" onclick="window.sendSavedChoice(' + i + ')">发送</button></div></div>'; } } box.innerHTML = html; }
-window.sendSavedChoice = function(idx) { var qData = APP_DATA.savedQuestionnaires[idx]; var msg = { sender: 'user', type: 'choice', title: qData.title, questions: qData.questions, time: Date.now() }; APP_DATA.chatHistory.push(msg); appendMsgUI(msg, APP_DATA.chatHistory.length - 1); saveData(); document.getElementById('bottomPanel').classList.remove('active'); scrollToBottom(); triggerTaReply(); };
+window.sendSavedChoice = function(idx) { var qData = APP_DATA.savedQuestionnaires[idx]; var msg = { sender: 'user', type: 'choice', title: qData.title, questions: qData.questions, time: Date.now() }; APP_DATA.chatHistory.push(msg); appendMsgUI(msg, APP_DATA.chatHistory.length - 1); saveData(); document.getElementById('bottomPanel').classList.remove('active'); scrollToBottom(); triggerTaReply(msg); };
 window.deleteSavedChoice = function(idx) { if(confirm('确定删除该问卷模板？')) { APP_DATA.savedQuestionnaires.splice(idx, 1); saveData(); renderSavedChoices(); } };window.openDataSelect = function(mode) { currentState.dataSelectMode = mode; document.getElementById('dataSelectTitle').innerText = mode === 'export' ? '选择性导出数据' : '选择性导入数据'; document.getElementById('chk_all').checked = true; var cbs = document.querySelectorAll('.data-module-cb'); for(var i=0; i<cbs.length; i++) cbs[i].checked = true; document.getElementById('dataSelectMask').classList.add('active'); if (mode === 'import') document.getElementById('upload_importData').click(); };
 window.closeDataSelect = function() { document.getElementById('dataSelectMask').classList.remove('active'); currentState.tempImportData = null; };
 window.toggleAllDataCheck = function(isChecked) { var cbs = document.querySelectorAll('.data-module-cb'); for(var i=0; i<cbs.length; i++) cbs[i].checked = isChecked; };
